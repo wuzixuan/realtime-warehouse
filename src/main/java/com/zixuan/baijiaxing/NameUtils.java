@@ -29,7 +29,7 @@ public class NameUtils {
         String name = "";
 
         //根据性别从不同的HashMap中随机读取名字
-        if (sex.toLowerCase()=="gril"){
+        if (sex.toLowerCase()=="girl"){
             for (int i = 0; i < nameLength; i++) {
                 name = name + grilnameDict.get(Integer.valueOf(rand.nextInt(106)+1));
             }
@@ -39,5 +39,20 @@ public class NameUtils {
             }
         }
         return name;
+    }
+
+    //获取全名
+    public String getFullName(){
+        int isBoy = rand.nextInt(2);
+        String sex = null;
+        if (isBoy==1){
+            sex="boy";
+        }else {
+            sex="girl";
+        }
+        String name = null;
+        name = this.getSurname()+this.getName(sex);
+        return name;
+
     }
 }
