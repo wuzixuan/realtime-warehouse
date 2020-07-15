@@ -9,7 +9,7 @@ public class Test {
         NameUtils surnameUtils = new NameUtils();
         Random random = new Random();
         String name = null;
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i <  200; i++) {
             name = surnameUtils.getSurname()+surnameUtils.getName("gril");
             System.out.println(name);
         }

@@ -31,11 +31,11 @@ public class NameUtils {
         //根据性别从不同的HashMap中随机读取名字
         if (sex.toLowerCase()=="gril"){
             for (int i = 0; i < nameLength; i++) {
-                name = name + grilnameDict.get(Integer.valueOf(rand.nextInt(105)+1));
+                name = name + grilnameDict.get(Integer.valueOf(rand.nextInt(106)+1));
             }
         }else if (sex.toLowerCase()=="boy"){
             for (int i = 0; i < nameLength; i++) {
-                name = name + boynameDict.get(Integer.valueOf(rand.nextInt(203)+1));
+                name = name + boynameDict.get(Integer.valueOf(rand.nextInt(205)+1));
             }
         }
         return name;
