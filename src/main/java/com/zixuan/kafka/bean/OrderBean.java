@@ -5,14 +5,14 @@ import java.io.Serializable;
 public class OrderBean implements Serializable {
     private int orderID;
     private String user;
-    private double amount;
+    private String amount;
     private long creatTime;
 
     public OrderBean(){
 
     }
 
-    public OrderBean(int orderID,String user,double amount,long creatTime){
+    public OrderBean(int orderID,String user,String amount,long creatTime){
         this.orderID=orderID;
         this.user=user;
         this.amount=amount;
@@ -41,11 +41,11 @@ public class OrderBean implements Serializable {
         this.user = user;
     }
 
-    public double getAmount() {
+    public String getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(String amount) {
         this.amount = amount;
     }
 

@@ -13,13 +13,11 @@ public class OrderProducer {
 
     public void producer(){
         Properties props = new Properties();
-        props = new PropertiesUtils().loadProp(props, "kafka.properties","com.zixuan.kafka.encoder.ObjectEncoder");
+        props = new PropertiesUtils().loadProp(props, "producer.properties","com.zixuan.kafka.encoder.ObjectEncoder");
         KafkaProducer<String, Object> kafkaProducer = new KafkaProducer<String, Object>(props);
         for (int i = 0; i < 100; i++) {
             kafkaProducer.send(new ProducerRecord<String, Object>("test-topic"
-                    ,new OrderBean(i,"test",20, 111L)));
+                    ,new OrderBean()));
         }
-
-
     }
 }
