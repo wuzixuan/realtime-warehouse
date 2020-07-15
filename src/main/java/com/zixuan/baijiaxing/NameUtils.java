@@ -24,8 +24,11 @@ public class NameUtils {
 
     //获取随机名字
     public String getName(String sex){
+        //生成名字长度1-2
         int nameLength = rand.nextInt(2) + 1;
         String name = "";
+
+        //根据性别从不同的HashMap中随机读取名字
         if (sex.toLowerCase()=="gril"){
             for (int i = 0; i < nameLength; i++) {
                 name = name + grilnameDict.get(Integer.valueOf(rand.nextInt(105)+1));
