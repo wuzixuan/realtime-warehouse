@@ -7,8 +7,8 @@ import java.util.Properties;
 public class PropertiesUtils {
 
     //读取Properties文件
-    public Properties loadProp(Properties props,String propsName,String encoderClass){
-        InputStream fis = this.getClass().getClassLoader().getResourceAsStream(propsName);
+    public Properties loadProducerProp(Properties props,String encoderClass){
+        InputStream fis = this.getClass().getClassLoader().getResourceAsStream("producer.properties");
         try {
             props.load(fis);
             props.put("value.serializer", encoderClass);
