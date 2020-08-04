@@ -84,6 +84,14 @@ under the License.
 			<version>${flink.version}</version>
 		</dependency>
 
+		<!-- 使用rocksdb状态后端需导入依赖 -->
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-statebackend-rocksdb_2.11</artifactId>
+			<version>1.7.0</version>
+		</dependency>
+
+
 		<!-- Add logging framework, to produce console output when running in the IDE. -->
 		<!-- These dependencies are excluded from the application JAR by default. -->
 		<dependency>

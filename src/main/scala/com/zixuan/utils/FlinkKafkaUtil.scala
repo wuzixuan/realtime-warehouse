@@ -8,7 +8,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 
 class FlinkKafkaUtil {
 
-  def getSource(env : StreamExecutionEnvironment,topic : String) ={
+  def getSource(env : StreamExecutionEnvironment,obj : Object,topic : String) ={
     val properties = new Properties()
     val fs = this.getClass.getClassLoader.getResourceAsStream("conf/test.properties")
     properties.load(fs)
