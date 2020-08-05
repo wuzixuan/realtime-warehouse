@@ -85,11 +85,13 @@ under the License.
 		</dependency>
 
 		<!-- 使用rocksdb状态后端需导入依赖 -->
+		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-statebackend-rocksdb -->
 		<dependency>
 			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-statebackend-rocksdb_2.11</artifactId>
-			<version>1.7.0</version>
+			<artifactId>flink-statebackend-rocksdb_2.12</artifactId>
+			<version>1.10.1</version>
 		</dependency>
+
 
 
 		<!-- Add logging framework, to produce console output when running in the IDE. -->
