@@ -55,5 +55,8 @@ object KafkaToKafka {
     val dstream = env.addSource(consumer)
     dstream.print()
 
+    //执行
+    env.execute("test")
+
   }
 }
