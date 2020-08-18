@@ -1,5 +1,6 @@
 package com.zixuan.kafka.encoder;
 
+import com.zixuan.kafka.bean.OrderBean;
 import com.zixuan.kafka.utils.BeanUtils;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -19,6 +20,6 @@ public class FlinkKafkaObjectDeserialization implements DeserializationSchema<Ob
 
     //指定数据类型
     public TypeInformation getProducedType() {
-       return null;
+       return  TypeInformation.of(OrderBean.class);
     }
 }

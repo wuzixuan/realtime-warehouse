@@ -17,7 +17,7 @@ public class OrderConsumer {
         //根据Properties创建kafka消费者对象
         KafkaConsumer<String, Object> consumer = new KafkaConsumer<String, Object>(properties);
         //指定消费的topic
-        consumer.subscribe(Arrays.asList("test-topic"));
+        consumer.subscribe(Arrays.asList("test"));
         while (true){
             ConsumerRecords<String, Object> poll = consumer.poll(100);
             for (ConsumerRecord<String, Object> records : poll) {

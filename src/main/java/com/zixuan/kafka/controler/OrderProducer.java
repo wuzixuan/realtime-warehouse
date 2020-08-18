@@ -18,7 +18,7 @@ public class OrderProducer {
         KafkaProducer<String, Object> kafkaProducer = new KafkaProducer<String, Object>(props);
         //发送数据
         for (int i = 0; i < 100; i++) {
-            kafkaProducer.send(new ProducerRecord<String, Object>("test-topic"
+            kafkaProducer.send(new ProducerRecord<String, Object>("test"
                     , new OrderBean(i, DataUtils.createName(), DataUtils.createDouble(100, "0.00"), DataUtils.createCurrentTimeMillis())));
         }
     }
