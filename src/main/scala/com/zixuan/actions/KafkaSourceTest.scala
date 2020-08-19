@@ -36,8 +36,10 @@ object KafkaSourceTest {
     val consumer = new FlinkKafkaConsumer[Object]("test",new FlinkKafkaObjectDeserialization,properties)
     //创建流
     val dstream = env.addSource(consumer)
-    dstream.map(obj=> println(obj.toString))
+    val objToString = dstream.map(obj=> obj.toString)
 
+    //打印
+    objToString.print().setParallelism(1)
     //执行
     env.execute("test")
 
