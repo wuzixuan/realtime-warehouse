@@ -2,13 +2,14 @@ package com.zixuan.actions
 
 import java.util.Properties
 
-import com.zixuan.kafka.encoder.FlinkKafkaObjectDeserialization
+import com.zixuan.kafka.encoder.{FlinkJsonPOJODeserializer, FlinkJsonPOJOSerializer, FlinkKafkaObjectDeserialization}
 import org.apache.flink.api.common.restartstrategy.RestartStrategies
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend
 import org.apache.flink.runtime.state.StateBackend
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
+import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
+import org.codehaus.jettison.json.JSONObject
 
 object KafkaSourceTest {
   def main(args: Array[String]): Unit = {
@@ -20,7 +21,7 @@ object KafkaSourceTest {
     // 确保检查点之间有最小间隔为500 ms，假设每10s做一次checkpoint，某次耗时9s，那么正常在本次checkpoint完成后的1s又该做checkpoint了，以下配置可以确保每次checkpoint的最小间隔。
     env.getCheckpointConfig.setMinPauseBetweenCheckpoints(5000)
     //设置状态后端为rockDB
-    //指定rockDB路径，创建RocksDBStateBackend时，需指定泛型，因为env的setStateBackend方法被重写，默认的RocksDBStateBackend类型的方法已被弃用
+    //指定rockDB路径，创建RocksDBStateBackend时，需指定数据类型，因为env的setStateBackend方法被重写，默认返回RocksDBStateBackend类型的方法已被弃用
     val backend:StateBackend = new RocksDBStateBackend("hdfs://kudu1:9000/user/flink/StateBackend")
     env.setStateBackend(backend)
 
@@ -33,10 +34,18 @@ object KafkaSourceTest {
     properties.load(fs)
     import org.apache.flink.api.scala._
     //创建kafka消费者
-    val consumer = new FlinkKafkaConsumer[Object]("test",new FlinkKafkaObjectDeserialization,properties)
+    val consumer = new FlinkKafkaConsumer[JSONObject]("test",new FlinkJsonPOJODeserializer[JSONObject],properties)
     //创建流
     val dstream = env.addSource(consumer)
-    val objToString = dstream.map(obj=> obj.toString)
+    val objToString = dstream.map(
+      obj=> obj.get("name")+" "+obj.get("age")
+    )
+
+    //flink kafka生产者
+    val kafkaProducer = new FlinkKafkaProducer[JSONObject]("kudu1:9092,kudu2:9092,kudu3:9092","jsontest",new FlinkJsonPOJOSerializer[JSONObject]())
+
+    //输出到kafka
+    dstream.addSink(kafkaProducer)
 
     //打印
     objToString.print().setParallelism(1)
