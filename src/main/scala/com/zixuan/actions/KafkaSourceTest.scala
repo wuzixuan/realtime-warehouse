@@ -22,7 +22,7 @@ object KafkaSourceTest {
     env.getCheckpointConfig.setMinPauseBetweenCheckpoints(5000)
     //设置状态后端为rockDB
     //指定rockDB路径，创建RocksDBStateBackend时，需指定数据类型，因为env的setStateBackend方法被重写，默认返回RocksDBStateBackend类型的方法已被弃用
-    val backend:StateBackend = new RocksDBStateBackend("hdfs://kudu1:9000/user/flink/StateBackend")
+    val backend:StateBackend = new RocksDBStateBackend("hdfs://kudu1:9000/user/flink/StateBackend",true)
     env.setStateBackend(backend)
 
     //设置重启策略,重启3次，间隔1分钟
@@ -34,11 +34,15 @@ object KafkaSourceTest {
     properties.load(fs)
     import org.apache.flink.api.scala._
     //创建kafka消费者
-    val consumer = new FlinkKafkaConsumer[JSONObject]("test",new FlinkJsonPOJODeserializer[JSONObject],properties)
+    val consumer = new FlinkKafkaConsumer[Object]("test",new FlinkKafkaObjectDeserialization(),properties)
     //创建流
     val dstream = env.addSource(consumer)
     val objToString = dstream.map(
-      obj=> obj.get("name")+" "+obj.get("age")
+      obj=> obj.toString
+    )
+    dstream.map(obj=>
+      obj
+
     )
 
     //flink kafka生产者

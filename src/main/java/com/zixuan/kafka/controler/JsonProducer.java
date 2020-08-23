@@ -32,7 +32,7 @@ public class JsonProducer {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            kafkaProducer.send(new ProducerRecord<String, JSONObject>("jsontest", jsonObject));
+            kafkaProducer.send(new ProducerRecord<String, JSONObject>("test",jsonObject));
         }
     }
 }
