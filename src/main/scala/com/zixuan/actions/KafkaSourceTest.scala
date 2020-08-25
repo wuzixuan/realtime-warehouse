@@ -2,14 +2,16 @@ package com.zixuan.actions
 
 import java.util.Properties
 
+import com.alibaba.fastjson.JSONObject
 import com.zixuan.kafka.encoder.{FlinkJsonPOJODeserializer, FlinkJsonPOJOSerializer, FlinkKafkaObjectDeserialization}
+import com.zixuan.utils.ParseJsonData
 import org.apache.flink.api.common.restartstrategy.RestartStrategies
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend
 import org.apache.flink.runtime.state.StateBackend
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
-import org.codehaus.jettison.json.JSONObject
+
 
 object KafkaSourceTest {
   def main(args: Array[String]): Unit = {
@@ -37,22 +39,22 @@ object KafkaSourceTest {
     val consumer = new FlinkKafkaConsumer[Object]("test",new FlinkKafkaObjectDeserialization(),properties)
     //创建流
     val dstream = env.addSource(consumer)
-    val objToString = dstream.map(
-      obj=> obj.toString
-    )
-    dstream.map(obj=>
-      obj
+    val obj2JSONObj = dstream.map { obj =>
+      val str = ParseJsonData.getJsonString(obj)
+      val jsonObject = ParseJsonData.getJsonData(str)
+      jsonObject
+    }
 
-    )
+
 
     //flink kafka生产者
     val kafkaProducer = new FlinkKafkaProducer[JSONObject]("kudu1:9092,kudu2:9092,kudu3:9092","jsontest",new FlinkJsonPOJOSerializer[JSONObject]())
 
     //输出到kafka
-    dstream.addSink(kafkaProducer)
+    obj2JSONObj.addSink(kafkaProducer)
 
     //打印
-    objToString.print().setParallelism(1)
+    obj2JSONObj.print().setParallelism(1)
     //执行
     env.execute("test")
 
