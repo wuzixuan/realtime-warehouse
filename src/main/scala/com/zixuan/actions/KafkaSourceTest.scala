@@ -6,12 +6,14 @@ import com.alibaba.fastjson.JSONObject
 import com.zixuan.kafka.encoder.{FlinkJsonPOJODeserializer, FlinkJsonPOJOSerializer, FlinkKafkaObjectDeserialization}
 import com.zixuan.utils.ParseJsonData
 import org.apache.flink.api.common.restartstrategy.RestartStrategies
+import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend
 import org.apache.flink.runtime.state.StateBackend
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.apache.flink.streaming.api.scala.{OutputTag, StreamExecutionEnvironment}
-import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
+import org.apache.flink.streaming.connectors.kafka.internal.FlinkKafkaProducer
+import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
 import org.apache.flink.util.Collector
 
 
@@ -38,13 +40,12 @@ object KafkaSourceTest {
     properties.load(fs)
     import org.apache.flink.api.scala._
     //创建kafka消费者
-    val consumer = new FlinkKafkaConsumer[Object]("test",new FlinkKafkaObjectDeserialization(),properties)
+    val consumer = new FlinkKafkaConsumer011[Object]("test",new FlinkKafkaObjectDeserialization(),properties)
     //创建流
     val dstream = env.addSource(consumer)
     val obj2JSONObj = dstream.map { obj =>
       val str = ParseJsonData.getJsonString(obj)
-      val jsonObject = ParseJsonData.getJsonData(str)
-      jsonObject
+      str
     }
 
     //flink kafka生产者
@@ -55,29 +56,35 @@ object KafkaSourceTest {
 
     //打印
     obj2JSONObj.print().setParallelism(1)
-
+    obj2JSONObj.print()
+    import org.apache.flink.api.scala._
 
     //将dataStream拆成两份 一份维度表写到hbase 另一份事实表数据写到第二层kafka
     //    val sideOutHbaseTag = new OutputTag[TopicAndValue]("hbaseSinkStream")
     //    val sideOutGreenPlumTag = new OutputTag[TopicAndValue]("greenplumSinkStream")
-    val srKafkaTag = new OutputTag[JSONObject]("srStream")
-    val result = obj2JSONObj.process(new ProcessFunction[JSONObject, JSONObject] {
-      override def processElement(value: JSONObject, ctx: ProcessFunction[JSONObject, JSONObject]#Context, out: Collector[JSONObject]): Unit = {
-        val amount:BigDecimal = value.getBigDecimal("amount")
-        if (amount<0){
-          //金额小于0，属于退单，发送至侧输出流
-          ctx.output(srKafkaTag, value)
-        }
-        else{
-          //正常输出，返回至结果流
-          out.collect(value)
-        }
-      }
-    })
-    //sr侧输出流得到kafka
-    result.getSideOutput(srKafkaTag).addSink(new FlinkKafkaProducer[JSONObject]("kudu1:9092,kudu2:9092,kudu3:9092","srjsontest",new FlinkJsonPOJOSerializer[JSONObject]()))
-    //ns输出到kafka
-    result.addSink(new FlinkKafkaProducer[JSONObject]("kudu1:9092,kudu2:9092,kudu3:9092","nsjsontest",new FlinkJsonPOJOSerializer[JSONObject]()))
+   val srKafkaTag = new OutputTag[String]("srStream")
+   val result = obj2JSONObj.process(new ProcessFunction[String, String] {
+     override def processElement(value: String, ctx: ProcessFunction[String, String]#Context, out: Collector[String]): Unit = {
+       val amount:BigDecimal = ParseJsonData.getJsonData(value).getBigDecimal("amount")
+       if (amount<0){
+         //金额小于0，属于退单，发送至侧输出流
+         ctx.output(srKafkaTag, value)
+       }
+       else{
+         //正常输出，返回至结果流
+         out.collect(value)
+       }
+     }
+   })
+   //sr侧输出流得到kafka
+   val srKafkaProducer = new FlinkKafkaProducer011[String]("kudu1:9092,kudu2:9092,kudu3:9092","srtest",new SimpleStringSchema)
+   //srKafkaProducer.setWriteTimestampToKafka(true)
+
+    result.getSideOutput(srKafkaTag).addSink(srKafkaProducer)
+   //ns输出到kafka
+    val nsKafkaProducer = new FlinkKafkaProducer011[String]("kudu1:9092,kudu2:9092,kudu3:9092","nstest",new SimpleStringSchema)
+    //nsKafkaProducer.setWriteTimestampToKafka(true)
+    result.addSink(nsKafkaProducer)
 
     //执行
     env.execute("test")

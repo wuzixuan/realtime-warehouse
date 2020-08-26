@@ -8,7 +8,7 @@ import com.zixuan.utils.FlinkKafkaUtil
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
 
 class KafkaToKudu {
 
@@ -31,7 +31,7 @@ class KafkaToKudu {
     properties.load(fs)
     import org.apache.flink.api.scala._
     //创建kafka消费者
-    val consumer = new FlinkKafkaConsumer[Object]("test-topic",new FlinkKafkaObjectDeserialization,properties)
+    val consumer = new FlinkKafkaConsumer011[Object]("test-topic",new FlinkKafkaObjectDeserialization,properties)
     //创建流
     val dstream = env.addSource(consumer)
     dstream.print()

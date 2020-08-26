@@ -10,7 +10,7 @@ import org.apache.flink.runtime.executiongraph.restart.RestartStrategy
 import org.apache.flink.runtime.state.StateBackend
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
 
 object KafkaToKafka {
   val BOOTSTRAP_SERVERS = "bootstrap.servers"
@@ -50,7 +50,7 @@ object KafkaToKafka {
     properties.load(fs)
     import org.apache.flink.api.scala._
     //创建kafka消费者
-    val consumer = new FlinkKafkaConsumer[Object]("test-topic",new FlinkKafkaObjectDeserialization,properties)
+    val consumer = new FlinkKafkaConsumer011[Object]("test-topic",new FlinkKafkaObjectDeserialization,properties)
     //创建流
     val dstream = env.addSource(consumer)
     dstream.print()
