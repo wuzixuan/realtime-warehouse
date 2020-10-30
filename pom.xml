@@ -123,6 +123,13 @@ under the License.
 			<version>1.2.58</version>
 		</dependency>
 
+		<!-- 链接redis -->
+		<!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.9.0</version>
+		</dependency>
 
 
 		<!-- Add logging framework, to produce console output when running in the IDE. -->
